@@ -28,11 +28,20 @@ import Img4 from 'assets/images/user/avatar-4.png';
 import Img5 from 'assets/images/user/avatar-5.png';
 
 // .meta.env variables
-const IMG_BB_API_KEY = import .meta.env.VITE_IMG_BB_API_KEY;
-const IMG_BB_API_URL = import .meta.env.VITE_IMG_BB_API_URL;
-const  BACKEND_URL = import .meta.env.VITE_BACKEND_URL
+const IMG_BB_API_KEY = import.meta.env.VITE_IMG_BB_API_KEY;
+const IMG_BB_API_URL = import.meta.env.VITE_IMG_BB_API_URL;
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
-import { confirmPasswordSchema, emailSchema, fullNameSchema, phoneNumberSchema, dateOfBirthSchema,firstNameSchema, lastNameSchema, passwordSchema } from '../../utils/validationSchema';
+import {
+  confirmPasswordSchema,
+  emailSchema,
+  fullNameSchema,
+  phoneNumberSchema,
+  dateOfBirthSchema,
+  firstNameSchema,
+  lastNameSchema,
+  passwordSchema
+} from '../../utils/validationSchema';
 
 const notifications = [
   {
@@ -97,42 +106,40 @@ export default function Header() {
   const [formErrors, setFormErrors] = useState({});
 
   const validateField = (name, value) => {
-  switch (name) {
-    case 'name':
-      if (!value) return fullNameSchema.required;
-      if (!fullNameSchema.pattern.value.test(value))
-        return fullNameSchema.pattern.message;
-      return '';
-    case 'phone_no':
-      if (!value) return phoneNumberSchema.required;
-      if (!phoneNumberSchema.pattern.value.test(value))
-        return phoneNumberSchema.pattern.message;
-      return '';
-    case 'date_of_birth':
-      if (!value) return dateOfBirthSchema.required;
-      if (dateOfBirthSchema.validate) {
-        const validationResult = dateOfBirthSchema.validate.ageMustBeAtLeast14(value);
-        if (validationResult !== true) return validationResult;
-      }
-      return '';
-    default:
-      return '';
-  }
-};
+    switch (name) {
+      case 'name':
+        if (!value) return fullNameSchema.required;
+        if (!fullNameSchema.pattern.value.test(value)) return fullNameSchema.pattern.message;
+        return '';
+      case 'phone_no':
+        if (!value) return phoneNumberSchema.required;
+        if (!phoneNumberSchema.pattern.value.test(value)) return phoneNumberSchema.pattern.message;
+        return '';
+      case 'date_of_birth':
+        if (!value) return dateOfBirthSchema.required;
+        if (dateOfBirthSchema.validate) {
+          const validationResult = dateOfBirthSchema.validate.ageMustBeAtLeast14(value);
+          if (validationResult !== true) return validationResult;
+        }
+        return '';
+      default:
+        return '';
+    }
+  };
 
   useEffect(() => {
-  const storedUser = localStorage.getItem('user');
-  if (storedUser) {
-    try {
-      const parsedUser = JSON.parse(storedUser);
-      setUserData(parsedUser);
-    } catch (error) {
-      console.error('Error parsing user data:', error);
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      try {
+        const parsedUser = JSON.parse(storedUser);
+        setUserData(parsedUser);
+      } catch (error) {
+        console.error('Error parsing user data:', error);
+      }
     }
-  }
-}, []);
+  }, []);
 
-// Open modal and prefill form
+  // Open modal and prefill form
   const handleOpenModal = () => {
     setFormData({
       phone_no: userData.phone_no || '',
@@ -148,36 +155,36 @@ export default function Header() {
   // Handle input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
     const errorMsg = validateField(name, value);
-    setFormErrors(prev => ({ ...prev, [name]: errorMsg }));
+    setFormErrors((prev) => ({ ...prev, [name]: errorMsg }));
   };
 
   // Handle profile image change
-  const handleImageChange  = async (e) => {
+  const handleImageChange = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
     // Helper function to get file extension
-  const getFileExtension = (filename) => {
-    return filename.split('.').pop().toLowerCase();
-  };
+    const getFileExtension = (filename) => {
+      return filename.split('.').pop().toLowerCase();
+    };
 
-  // Check file extension
-  const allowedExtensions = ['jpg', 'jpeg', 'png'];
-  const fileExtension = getFileExtension(file.name);
-  if (!allowedExtensions.includes(fileExtension)) {
-    setFormData(prev => ({ ...prev, user_profile_img: '' })); // clear field
-    toast.error("Invalid file type. Please select a JPG or PNG image.");
-    return;
-  }
+    // Check file extension
+    const allowedExtensions = ['jpg', 'jpeg', 'png'];
+    const fileExtension = getFileExtension(file.name);
+    if (!allowedExtensions.includes(fileExtension)) {
+      setFormData((prev) => ({ ...prev, user_profile_img: '' })); // clear field
+      toast.error('Invalid file type. Please select a JPG or PNG image.');
+      return;
+    }
 
-  // Check file size (max 300kb)
-  if (file.size > 300 * 1024) {
-    setFormData(prev => ({ ...prev, user_profile_img: '' })); // clear field
-    toast.error("File size exceeds 300KB. Please select a smaller image.");
-    return;
-  }
+    // Check file size (max 300kb)
+    if (file.size > 300 * 1024) {
+      setFormData((prev) => ({ ...prev, user_profile_img: '' })); // clear field
+      toast.error('File size exceeds 300KB. Please select a smaller image.');
+      return;
+    }
 
     setLoading(true); // optional loading state
 
@@ -193,23 +200,21 @@ export default function Header() {
       const data = await response.json();
 
       if (data && data.data && data.data.url) {
-        setFormData(prev => ({
+        setFormData((prev) => ({
           ...prev,
           user_profile_img: data.data.url
         }));
-        toast.success("Image successfully selected!");
-        
+        toast.success('Image successfully selected!');
       } else {
-        setFormData(prev => ({ ...prev, user_profile_img: '' }));
+        setFormData((prev) => ({ ...prev, user_profile_img: '' }));
         console.error('Invalid response from ImgBB:', data);
-        toast.error("Something went wrong, please select again!");
+        toast.error('Something went wrong, please select again!');
       }
-
     } catch (error) {
       console.error('Error uploading image to ImgBB:', error);
-      setFormData(prev => ({ ...prev, user_profile_img: '' })); // Clear on failure
+      setFormData((prev) => ({ ...prev, user_profile_img: '' })); // Clear on failure
       console.error('Error uploading image to ImgBB:', error);
-      toast.error("Something went wrong, please select again!");
+      toast.error('Something went wrong, please select again!');
     } finally {
       setLoading(false);
     }
@@ -219,17 +224,17 @@ export default function Header() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     // Validate phone number before submitting
-  // Validate all fields
-  const errors = {};
-  ['name', 'phone_no', 'date_of_birth'].forEach(key => {
-    const error = validateField(key, formData[key]);
-    if (error) errors[key] = error;
-  });
+    // Validate all fields
+    const errors = {};
+    ['name', 'phone_no', 'date_of_birth'].forEach((key) => {
+      const error = validateField(key, formData[key]);
+      if (error) errors[key] = error;
+    });
 
-  if (Object.keys(errors).length > 0) {
-    setFormErrors(errors);
-    return;
-  }
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors);
+      return;
+    }
 
     const token = localStorage.getItem('authkey'); // your stored token
     const submitData = new FormData();
@@ -246,33 +251,27 @@ export default function Header() {
       date_of_birth: formData.date_of_birth,
       user_profile_img: formData.user_profile_img
     });
-    
+
     setLoading(true);
     try {
-      const response = await axios.patch(
-        `${BACKEND_URL}/user-api/update-profile/`,
-        formData,
-        {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'multipart/form-data'
-          }
+      const response = await axios.patch(`${BACKEND_URL}/user-api/update-profile/`, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data'
         }
-      );
+      });
 
       console.log('Profile update response:', response.data);
-      toast.success("Profile updated successfully!");
+      toast.success('Profile updated successfully!');
       setShowModal(false);
-      
 
       // Update localStorage if you want
       localStorage.setItem('user', JSON.stringify(response.data.user_data));
-      await new Promise(resolve => setTimeout(resolve, 400));
+      await new Promise((resolve) => setTimeout(resolve, 400));
       window.location.reload();
-
     } catch (error) {
       console.error('Profile update error:', error);
-      toast.error(error?.response?.data?.message || "Failed to update profile!");
+      toast.error(error?.response?.data?.message || 'Failed to update profile!');
     } finally {
       setLoading(false);
     }
@@ -280,7 +279,7 @@ export default function Header() {
 
   const handleLogout = () => {
     localStorage.clear();
-    window.location.href = "/login";
+    window.location.href = '/login';
   };
 
   return (
@@ -389,7 +388,12 @@ export default function Header() {
                 <Dropdown.Header className="bg-primary">
                   <Stack direction="horizontal" gap={3} className="my-2">
                     <div className="flex-shrink-0">
-                      <Image src={userData.user_profile_img ? userData.user_profile_img : Img2} alt="user-avatar" className="user-avatar wid-35" roundedCircle />
+                      <Image
+                        src={userData.user_profile_img ? userData.user_profile_img : Img2}
+                        alt="user-avatar"
+                        className="user-avatar wid-35"
+                        roundedCircle
+                      />
                     </div>
                     <Stack gap={1}>
                       <h6 className="text-white mb-0">{userData.name} 🖖</h6>
@@ -404,14 +408,14 @@ export default function Header() {
                       <i className="ph ph-gear me-2" />
                       Settings
                     </Dropdown.Item>
-                    <Dropdown.Item as={Link} to="#" className="justify-content-start">
+                    {/* <Dropdown.Item as={Link} to="#" className="justify-content-start">
                       <i className="ph ph-share-network me-2" />
                       Share
                     </Dropdown.Item>
                     <Dropdown.Item as={Link} to="#" className="justify-content-start">
                       <i className="ph ph-lock-key me-2" />
                       Change Password
-                    </Dropdown.Item>
+                    </Dropdown.Item> */}
                     <div className="d-grid my-2">
                       <Button onClick={handleLogout}>
                         <i className="ph ph-sign-out align-middle me-2" />
@@ -434,17 +438,8 @@ export default function Header() {
           <Form onSubmit={handleSubmit}>
             <Form.Group className="mb-3">
               <Form.Label>Name</Form.Label>
-              <Form.Control
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                isInvalid={!!formErrors.name}
-                required
-              />
-              <Form.Control.Feedback type="invalid">
-                {formErrors.name}
-              </Form.Control.Feedback>
+              <Form.Control type="text" name="name" value={formData.name} onChange={handleChange} isInvalid={!!formErrors.name} required />
+              <Form.Control.Feedback type="invalid">{formErrors.name}</Form.Control.Feedback>
             </Form.Group>
             <Form.Group className="mb-3">
               <Form.Label>Phone Number</Form.Label>
@@ -455,9 +450,7 @@ export default function Header() {
                 onChange={handleChange}
                 isInvalid={!!formErrors.phone_no}
               />
-              <Form.Control.Feedback type="invalid">
-                {formErrors.phone_no}
-              </Form.Control.Feedback>
+              <Form.Control.Feedback type="invalid">{formErrors.phone_no}</Form.Control.Feedback>
             </Form.Group>
             <Form.Group className="mb-3">
               <Form.Label>Date of Birth</Form.Label>
@@ -468,39 +461,27 @@ export default function Header() {
                 onChange={handleChange}
                 isInvalid={!!formErrors.date_of_birth}
               />
-              <Form.Control.Feedback type="invalid">
-                {formErrors.date_of_birth}
-              </Form.Control.Feedback>
+              <Form.Control.Feedback type="invalid">{formErrors.date_of_birth}</Form.Control.Feedback>
             </Form.Group>
             <Form.Group className="mb-3">
               <Form.Label>Profile Image</Form.Label>
-              <Form.Control
-                type="file"
-                accept="image/*"
-                onChange={handleImageChange}
-              />
+              <Form.Control type="file" accept="image/*" onChange={handleImageChange} />
               {formData.user_profile_img && (
                 <div className="mt-2">
-                  <Image
-                    src={formData.user_profile_img}
-                    alt="Preview"
-                    roundedCircle
-                    width={60}
-                    height={60}
-                  />
+                  <Image src={formData.user_profile_img} alt="Preview" roundedCircle width={60} height={60} />
                 </div>
               )}
             </Form.Group>
             <div className="d-flex justify-content-end gap-2">
               <Button variant="primary" type="submit">
                 {loading ? (
-              <>
-                <span className="spinner-border spinner-border-sm me-2" role="status" />
-                data Updating...
-              </>
-            ) : (
-              'Save Changes'
-            )}
+                  <>
+                    <span className="spinner-border spinner-border-sm me-2" role="status" />
+                    data Updating...
+                  </>
+                ) : (
+                  'Save Changes'
+                )}
               </Button>
             </div>
           </Form>

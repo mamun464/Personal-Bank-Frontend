@@ -1,5 +1,7 @@
 import PropTypes from 'prop-types';
 import { useState } from 'react';
+import { useParams } from 'react-router-dom';
+
 import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -36,13 +38,14 @@ import DarkLogo from 'assets/images/bank_logo.png';
 // .meta.env variables
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
-// ==============================|| AUTH REGISTER FORM ||============================== //
+// ==============================|| AUTH - PASSWORD RESET FORM ||============================== //
 
-export default function AuthRegisterForm({ className, link }) {
+export default function AuthPasswordResetForm({ className, link }) {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [termsAndCondition, setTermsAndCondition] = useState(false);
   const navigate = useNavigate();
+  const { uid, token } = useParams();
   const {
     register,
     handleSubmit,
@@ -71,25 +74,18 @@ export default function AuthRegisterForm({ className, link }) {
     }
 
     clearErrors('confirmPassword');
-
     try {
       setLoading(true);
 
       const formData = new FormData();
-      formData.append('name', data.fullName);
-      formData.append('email', data.email);
-      formData.append('phone_no', data.phoneNumber);
-      formData.append('date_of_birth', data.dateOfBirth);
       formData.append('password', data.password);
       formData.append('confirm_password', data.confirmPassword);
 
-      const response = await axios.post(`${BACKEND_URL}/user-api/register/`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
+      const response = await axios.post(`${BACKEND_URL}/user-api/rest-password/${uid}/${token}/`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
       });
 
-      toast.success(response.data.message || 'Registration successful!');
+      toast.success(response.data.message || 'Password reset successfully!');
       reset();
       setLoading(false);
       await new Promise((resolve) => setTimeout(resolve, 1300));
@@ -98,7 +94,7 @@ export default function AuthRegisterForm({ className, link }) {
       console.error(error);
 
       if (error.response) {
-        toast.error(error.response.data.message || 'Registration failed!');
+        toast.error(error.response.data.message || 'Password reset failed!');
       } else {
         toast.error('Something went wrong!');
       }
@@ -116,47 +112,8 @@ export default function AuthRegisterForm({ className, link }) {
           </a>
         </div>
         <Form onSubmit={handleSubmit(onSubmit)}>
-          <h4 className={`text-center f-w-500 mt-4 mb-3 ${className}`}>Sign up</h4>
-          <Form.Group className="mb-3" controlId="formFullName">
-            <Form.Control
-              type="text"
-              placeholder="Full Name"
-              {...register('fullName', fullNameSchema)}
-              isInvalid={!!errors.fullName}
-              className={className && 'bg-transparent border-white text-white border-opacity-25 '}
-            />
-            <Form.Control.Feedback type="invalid">{errors.fullName?.message}</Form.Control.Feedback>
-          </Form.Group>
-          <Form.Group className="mb-3" controlId="formEmail">
-            <Form.Control
-              type="email"
-              placeholder="Email Address"
-              {...register('email', emailSchema)}
-              isInvalid={!!errors.email}
-              className={className && 'bg-transparent border-white text-white border-opacity-25 '}
-            />
-            <Form.Control.Feedback type="invalid">{errors.email?.message}</Form.Control.Feedback>
-          </Form.Group>
-          <Form.Group className="mb-3" controlId="formPhoneNumber">
-            <Form.Control
-              type="text"
-              placeholder="Phone Number"
-              {...register('phoneNumber', phoneNumberSchema)}
-              isInvalid={!!errors.phoneNumber}
-              className={className && 'bg-transparent border-white text-white border-opacity-25 '}
-            />
-            <Form.Control.Feedback type="invalid">{errors.phoneNumber?.message}</Form.Control.Feedback>
-          </Form.Group>
-          <Form.Group className="mb-3" controlId="formDateOfBirth">
-            <Form.Control
-              type="date"
-              placeholder="Date Of Birth"
-              {...register('dateOfBirth', dateOfBirthSchema)}
-              isInvalid={!!errors.dateOfBirth}
-              className={className && 'bg-transparent border-white text-white border-opacity-25 '}
-            />
-            <Form.Control.Feedback type="invalid">{errors.dateOfBirth?.message}</Form.Control.Feedback>
-          </Form.Group>
+          <h4 className={`text-center f-w-500 mt-4 mb-3 ${className}`}>Create New Password</h4>
+
           <Form.Group className="mb-3" controlId="formPassword">
             <InputGroup>
               <Form.Control
@@ -198,15 +155,15 @@ export default function AuthRegisterForm({ className, link }) {
               {loading ? (
                 <>
                   <span className="spinner-border spinner-border-sm me-2" role="status" />
-                  Signing up...
+                  Resetting...
                 </>
               ) : (
-                'Sign up'
+                'Reset Password'
               )}
             </Button>
           </div>
           <Stack direction="horizontal" className="justify-content-between align-items-end mt-4">
-            <h6 className={`f-w-500 mb-0 ${className}`}>Already have an Account?</h6>
+            <h6 className={`f-w-500 mb-0 ${className}`}>Don't want to reset?</h6>
             <a href={link} className="link-primary">
               Login
             </a>
@@ -228,4 +185,4 @@ export default function AuthRegisterForm({ className, link }) {
   );
 }
 
-AuthRegisterForm.propTypes = { className: PropTypes.string, link: PropTypes.string };
+AuthPasswordResetForm.propTypes = { className: PropTypes.string, link: PropTypes.string };
