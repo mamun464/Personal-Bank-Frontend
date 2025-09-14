@@ -52,6 +52,10 @@ export default function AuthLoginForm({ className, link }) {
     setShowPassword((prevState) => !prevState);
   };
 
+  useEffect(() => {
+    localStorage.clear();
+  }, []);
+
   // Timer logic for resend button
   useEffect(() => {
     let interval = null;

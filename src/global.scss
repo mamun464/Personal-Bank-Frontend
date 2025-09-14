@@ -20,3 +20,10 @@
   top: 16px;
   height: 0;
 }
+
+/* Add this to global.scss */
+.thin-spinner {
+  width: 1.5rem;
+  height: 1.5rem;
+  border-width: 0.1em;
+}
