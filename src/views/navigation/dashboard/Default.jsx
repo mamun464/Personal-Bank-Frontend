@@ -10,7 +10,7 @@ import CountUp from 'react-countup';
 import SalesPerformanceCard from 'components/cards/SalesPerformanceCard';
 import SocialStatsCard from 'components/cards/SocialStatsCard';
 import StatIndicatorCard from 'components/cards/StatIndicatorCard';
-import { UsersMap, EarningChart, RatingCard, RecentUsersCard } from 'sections/dashboard/default';
+import { UsersMap, TransactionForm, EarningChart, RatingCard, RecentUsersCard } from 'sections/dashboard/default';
 
 // .meta.env.BACKEND_URL
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
@@ -20,82 +20,6 @@ const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 const statIndicatorData = [
   { icon: 'ph ph-lightbulb-filament', value: '235', label: 'TOTAL IDEAS', iconColor: 'text-success' },
   { icon: 'ph ph-map-pin-line', value: '26', label: 'TOTAL LOCATION', iconColor: 'text-primary' }
-];
-
-// ===============================|| SOCIAL STATS CARD - DATA ||============================== //
-
-const socialStatsData = [
-  {
-    icon: 'ti ti-brand-facebook-filled text-primary',
-    count: '12,281',
-    percentage: '+7.2%',
-    color: 'text-success',
-    stats: [
-      {
-        label: 'Target',
-        value: '35,098',
-        progress: {
-          now: 60,
-          className: 'bg-brand-color-1'
-        }
-      },
-      {
-        label: 'Duration',
-        value: '3,539',
-        progress: {
-          now: 45,
-          className: 'bg-brand-color-2'
-        }
-      }
-    ]
-  },
-  {
-    icon: 'ti ti-brand-twitter-filled text-info',
-    count: '11,200',
-    percentage: '+6.2%',
-    color: 'text-primary',
-    stats: [
-      {
-        label: 'Target',
-        value: '34,185',
-        progress: {
-          now: 40,
-          className: 'bg-success'
-        }
-      },
-      {
-        label: 'Duration',
-        value: '4,567',
-        progress: {
-          now: 70
-        }
-      }
-    ]
-  },
-  {
-    icon: 'ti ti-brand-google-filled text-danger',
-    count: '10,500',
-    percentage: '+5.9%',
-    color: 'text-primary',
-    stats: [
-      {
-        label: 'Target',
-        value: '25,998',
-        progress: {
-          now: 80,
-          className: 'bg-brand-color-1'
-        }
-      },
-      {
-        label: 'Duration',
-        value: '7,753',
-        progress: {
-          now: 50,
-          className: 'bg-brand-color-2'
-        }
-      }
-    ]
-  }
 ];
 
 // ===============================|| BACK AND FORTH PROGRESS BAR HOOK ||============================== //
@@ -211,6 +135,14 @@ export default function DefaultPage() {
         toast.error(response.data?.message || 'Failed to load dashboard data');
       }
     } catch (error) {
+      console.error('Dashboard data fetch error:', error);
+      // ✅ Check for 401 Unauthorized
+      if (error.response?.status === 401) {
+        toast.error('Session expired. Please log in again.');
+        localStorage.clear(); // Clear user + authkey
+        window.location.href = '/login'; // Redirect to login
+        return;
+      }
       toast.error(error.response?.data?.message || 'Failed to load dashboard data');
     } finally {
       setCardLoading(false);
@@ -236,7 +168,7 @@ export default function DefaultPage() {
 
       {/* Other dashboard sections remain unchanged */}
       <Col md={6} xl={8}>
-        <UsersMap />
+        {isAuthorized && <TransactionForm />}
       </Col>
       <Col md={6} xl={4}>
         <EarningChart />

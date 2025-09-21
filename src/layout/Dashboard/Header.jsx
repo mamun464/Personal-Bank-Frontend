@@ -199,6 +199,15 @@ export default function Header() {
 
       const data = await response.json();
 
+      // Check for 401 at API response level
+      if (data && data.success === false && data.status === 401) {
+        console.error('Unauthorized response from ImgBB:', data);
+        toast.error('Session expired. Please log in again.');
+        localStorage.clear(); // clear stored user data
+        window.location.href = '/login'; // redirect to login page
+        return; // Stop execution
+      }
+
       if (data && data.data && data.data.url) {
         setFormData((prev) => ({
           ...prev,
@@ -270,6 +279,13 @@ export default function Header() {
       await new Promise((resolve) => setTimeout(resolve, 400));
       window.location.reload();
     } catch (error) {
+      // ✅ Check for 401 Unauthorized
+      if (error.response?.status === 401) {
+        toast.error('Session expired. Please log in again.');
+        localStorage.clear(); // clear stored user data
+        window.location.href = '/login'; // redirect to login page
+        return;
+      }
       console.error('Profile update error:', error);
       toast.error(error?.response?.data?.message || 'Failed to update profile!');
     } finally {

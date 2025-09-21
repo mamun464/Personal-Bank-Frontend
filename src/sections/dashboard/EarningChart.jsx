@@ -63,6 +63,14 @@ export default function EarningChart() {
         toast.error(response.data?.message || 'Failed to fetch wallet data ');
       }
     } catch (error) {
+      console.error('Fetch wallet data error:', error);
+      // ✅ Check for 401 Unauthorized
+      if (error.response?.status === 401) {
+        toast.error('Session expired. Please log in again.');
+        localStorage.clear(); // Clear user + authkey
+        window.location.href = '/login'; // Redirect to login
+        return;
+      }
       toast.error(error.response?.data?.message || 'Failed to fetch wallet data');
     } finally {
       setLoading(false);

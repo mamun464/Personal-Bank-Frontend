@@ -160,6 +160,12 @@ export default function AuthLoginForm({ className, link }) {
       }
     } catch (error) {
       console.error('Error during OTP verification:', error);
+      if (error.response?.status === 401) {
+        toast.error('Session expired. Please log in again.');
+        localStorage.clear(); // clear user + authkey
+        window.location.href = '/login'; // redirect to login page
+        return;
+      }
       // ✅ Show backend message if present, else fallback
       toast.error(error.response?.data?.message || 'Something went wrong!');
     } finally {
@@ -194,6 +200,13 @@ export default function AuthLoginForm({ className, link }) {
         toast.error(response.data?.message || 'Failed to resend OTP');
       }
     } catch (error) {
+      console.error('Error during OTP resend:', error);
+      if (error.response?.status === 401) {
+        toast.error('Session expired. Please log in again.');
+        localStorage.clear(); // clear user + authkey
+        window.location.href = '/login'; // redirect to login page
+        return;
+      }
       toast.error(error.response?.data?.message || 'Failed to resend OTP');
     } finally {
       SetResendLoader(false);
